@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 class Category(models.Model):
     name = models.CharField(max_length=100)
     slug = models.SlugField(unique=True)
+    image = models.ImageField(upload_to='categories/', blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -22,14 +23,6 @@ class Item(models.Model):
     def __str__(self):
         return self.name
 
-# User Profile Model
-class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    address = models.TextField()
-    phone = models.CharField(max_length=15)
-
-    def __str__(self):
-        return self.user.username
 
 # Cart Model
 class Cart(models.Model):
