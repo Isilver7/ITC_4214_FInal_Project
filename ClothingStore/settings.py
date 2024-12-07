@@ -9,7 +9,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-$ppkc%f7ei7@bd)y6kch95z-^g
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'sstylepulse-852c5afcc51a.herokuapp.com']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'stylepulse-852c5afcc51a.herokuapp.com']
 
 
 INSTALLED_APPS = [
