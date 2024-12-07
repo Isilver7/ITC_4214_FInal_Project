@@ -2,19 +2,7 @@ from pathlib import Path
 import os
 import dj_database_url
 
-if os.getenv('DATABASE_URL'):
-    # Use DATABASE_URL from environment variables for production
-    DATABASES = {
-        'default': dj_database_url.config(conn_max_age=600, ssl_require=True)
-    }
-else:
-    # Use SQLite for local development
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-$ppkc%f7ei7@bd)y6kch95z-^g=9qqzalxg(dys8kj4vyhu-4!')
@@ -65,9 +53,20 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ClothingStore.wsgi.application'
 
+
+# Default to SQLite for local development
 DATABASES = {
-    'default': dj_database_url.config(conn_max_age=600, ssl_require=True)
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
+
+# Switch to Heroku's Postgres if DATABASE_URL is available
+DATABASE_URL = os.getenv('DATABASE_URL')
+if DATABASE_URL:
+    DATABASES['default'] = dj_database_url.config(default=DATABASE_URL, conn_max_age=600, ssl_require=True)
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
