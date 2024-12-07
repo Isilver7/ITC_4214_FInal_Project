@@ -15,7 +15,7 @@ class Item(models.Model):
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.PositiveIntegerField()
-    image = models.ImageField(upload_to='items/')
+    image = models.ImageField(upload_to='items/',blank=True, null=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='items')
     slug = models.SlugField(unique=True)
 

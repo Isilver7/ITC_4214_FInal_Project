@@ -22,7 +22,7 @@ def item_detail(request, slug):
 
 def all_categories(request):
     categories = Category.objects.all()
-    return render(request, 'store/all_categories.html', {'categories': categories})
+    return render(request, 'store/all_categories.html', {'categories': categories,})
 
 # Cart Views
 def cart_detail(request):
