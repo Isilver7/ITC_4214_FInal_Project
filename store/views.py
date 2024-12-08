@@ -4,17 +4,19 @@ from django.contrib import messages
 from .models import Category, Item
 from .cart import Cart
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.db.models import Q
 
 def index(request):
-    categories = Category.objects.all()[:5]  # Get first 5 categories
-    items = Item.objects.all()[:5]           # Get first 5 items
+    items = Item.objects.all()  # Get all items
     context = {
-        'categories': categories,
         'items': items
     }
-    return render(request, 'store/index.html', context) 
+    return render(request, 'store/index.html', context)
 
-
+def search_results(request):
+    query = request.GET.get('query', '')
+    items = Item.objects.filter(Q(name__icontains=query) | Q(description__icontains=query))
+    return render(request, 'store/partials/product_list.html', {'items': items})
 
 def category_items(request, slug):
     category = get_object_or_404(Category, slug=slug)
