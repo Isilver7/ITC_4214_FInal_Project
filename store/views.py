@@ -81,15 +81,22 @@ def register_view(request):
 def profile_view(request):
     profile, created = Profile.objects.get_or_create(user=request.user)
     if request.method == 'POST':
-        form = ProfileForm(request.POST, instance=profile)
-        if form.is_valid():
-            form.save()
+        try:
+            profile.name = request.POST.get('name')
+            profile.surname = request.POST.get('surname')
+            profile.age = request.POST.get('age')
+            profile.preferred_size = request.POST.get('preferred_size')
+            profile.save()
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': True})
             messages.success(request, "Profile updated successfully.")
             return redirect('profile')
-    else:
-        form = ProfileForm(instance=profile)
-    
-    return render(request, 'store/profile.html', {'form': form})
+        except Exception as e:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'error': str(e)})
+            messages.error(request, "There was an error updating your profile.")
+    return render(request, 'store/profile.html', {'profile': profile})
+
 
 @login_required
 def rate_item(request, item_id):
