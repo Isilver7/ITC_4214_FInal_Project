@@ -41,3 +41,20 @@ class CartItem(models.Model):
 
     def __str__(self):
         return f"{self.quantity} x {self.item.name} in {self.cart.user.username}'s cart"
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    bio = models.TextField(blank=True, null=True)
+    location = models.CharField(max_length=100, blank=True, null=True)
+    # Add more fields as needed
+
+    def __str__(self):
+        return self.user.username
+
+class Rating(models.Model):
+    item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='ratings')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    stars = models.IntegerField(default=0)  # Rating from 1 to 5
+
+    class Meta:
+        unique_together = ('item', 'user')  # Ensure a user can rate an item only once

@@ -8,6 +8,25 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     {% load static %}
     <link rel="stylesheet" href="{% static 'store/styles.css' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .rating-stars {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            margin-top: 15px;
+        }
+        .star {
+            font-size: 2rem;
+            cursor: pointer;
+            color: #ccc; /* Default star color */
+        }
+        .star:hover,
+        .star.selected {
+            color: #ffc107; /* Highlight color (gold) */
+        }
+    </style>
 </head>
 <body>
     <!-- Navbar -->
@@ -22,9 +41,65 @@
                 <h1>{{ item.name }}</h1>
                 <p>{{ item.description }}</p>
                 <h3>${{ item.price }}</h3>
-                <a href="{% url 'cart_add' item.id %}" class="btn btn-primary">Add to Cart</a>
+                <a href="{% url 'cart_add' item.id %}" class="btn btn-primary mb-4">Add to Cart</a>
+
+                <!-- Rating System -->
+                {% if user.is_authenticated %}
+                <div class="text-center">
+                    <h3>Rate this item:</h3>
+                    <div class="rating-stars">
+                        {% for star in "12345" %}
+                            <span class="star" data-value="{{ star }}">&#9733;</span>
+                        {% endfor %}
+                    </div>
+                    <p class="mt-2" id="rating-feedback" style="display: none;"></p>
+                </div>
+                {% else %}
+                <p>Please <a href="{% url 'login' %}">log in</a> to rate this item.</p>
+                {% endif %}
             </div>
         </div>
     </div>
+
+    <script>
+        $(document).ready(function() {
+            $('.star').on('mouseenter', function() {
+                var value = $(this).data('value');
+                $('.star').each(function() {
+                    if ($(this).data('value') <= value) {
+                        $(this).addClass('selected');
+                    } else {
+                        $(this).removeClass('selected');
+                    }
+                });
+            });
+
+            $('.rating-stars').on('mouseleave', function() {
+                $('.star').removeClass('selected');
+            });
+
+            $('.star').on('click', function() {
+                var stars = $(this).data('value');
+                $.ajax({
+                    url: "{% url 'rate_item' item.id %}",
+                    method: "POST",
+                    data: {
+                        'stars': stars,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            $('#rating-feedback').text('You rated this item ' + response.stars + ' stars.').css('color', 'green').show();
+                        } else {
+                            $('#rating-feedback').text('There was an error. Please try again.').css('color', 'red').show();
+                        }
+                    },
+                    error: function() {
+                        $('#rating-feedback').text('There was an error. Please try again.').css('color', 'red').show();
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

@@ -1,10 +1,14 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
-from .models import Category, Item
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from .models import Category, Item, Profile, Rating
 from .cart import Cart
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.db.models import Q
+from .forms import ProfileForm
+
 
 def index(request):
     items = Item.objects.all()  # Get all items
@@ -72,3 +76,31 @@ def register_view(request):
     else:
         form = UserCreationForm()
     return render(request, 'store/register.html', {'form': form})
+
+@login_required
+def profile_view(request):
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, instance=profile)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Profile updated successfully.")
+            return redirect('profile')
+    else:
+        form = ProfileForm(instance=profile)
+    
+    return render(request, 'store/profile.html', {'form': form})
+
+@login_required
+def rate_item(request, item_id):
+    if request.method == 'POST':
+        stars = int(request.POST.get('stars', 0))
+        item = Item.objects.get(id=item_id)
+        rating, created = Rating.objects.get_or_create(item=item, user=request.user)
+        rating.stars = stars
+        rating.save()
+        return JsonResponse({'success': True, 'stars': stars})
+    return JsonResponse({'success': False})
+
+def about_us(request):
+    return render(request, 'store/about_us.html')
