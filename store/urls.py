@@ -16,5 +16,6 @@ urlpatterns = [
     path('profile/', views.profile_view, name='profile'),
     path('logout/', LogoutView.as_view(next_page='index'), name='logout'),
     path('rate/<int:item_id>/', views.rate_item, name='rate_item'),
+    path('checkout/', views.checkout, name='checkout'),
     path('about-us/', views.about_us, name='about_us'),
 ]

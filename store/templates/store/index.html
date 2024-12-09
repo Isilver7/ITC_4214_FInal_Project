@@ -14,6 +14,18 @@
     <!-- Navbar -->
     {% include 'store/navbar.html' %}
 
+    <!-- Display Messages -->
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
     <!-- Welcome Section with Background Image -->
     <div class="container-fluid p-0">
         <div class="welcome-section text-center text-white" style="background-image: url('{% static 'store/mainimage.jpg' %}'); background-size: cover; background-position: center; height: 600px; display: flex; align-items: center; justify-content: center; position: relative;">

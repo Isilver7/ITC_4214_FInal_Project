@@ -26,6 +26,16 @@
         .star.selected {
             color: #ffc107; /* Highlight color (gold) */
         }
+        .product-details {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .rating-feedback {
+            text-align: center;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -34,29 +44,59 @@
 
     <div class="container mt-5">
         <div class="row">
+            <!-- Product Image -->
             <div class="col-md-6">
-                <img src="{{ item.image.url }}" class="img-fluid" alt="{{ item.name }}">
-            </div>
-            <div class="col-md-6">
-                <h1>{{ item.name }}</h1>
-                <p>{{ item.description }}</p>
-                <h3>${{ item.price }}</h3>
-                <a href="{% url 'cart_add' item.id %}" class="btn btn-primary mb-4">Add to Cart</a>
-
-                <!-- Rating System -->
-                {% if user.is_authenticated %}
                 <div class="text-center">
-                    <h3>Rate this item:</h3>
-                    <div class="rating-stars">
-                        {% for star in "12345" %}
-                            <span class="star" data-value="{{ star }}">&#9733;</span>
-                        {% endfor %}
-                    </div>
-                    <p class="mt-2" id="rating-feedback" style="display: none;"></p>
+                    <img src="{{ item.image.url }}" class="img-fluid rounded" alt="{{ item.name }}">
                 </div>
-                {% else %}
-                <p>Please <a href="{% url 'login' %}">log in</a> to rate this item.</p>
-                {% endif %}
+            </div>
+
+            <!-- Product Details -->
+            <div class="col-md-6">
+                <div class="product-details">
+                    <h1 class="text-primary">{{ item.name }}</h1>
+                    <p class="text-muted">{{ item.description }}</p>
+                    <h3 class="text-success">${{ item.price }}</h3>
+                    <a href="{% url 'cart_add' item.id %}" class="btn btn-primary w-100 mb-4">Add to Cart</a>
+
+                    <!-- Rating System -->
+                    {% if user.is_authenticated %}
+                    <div class="text-center">
+                        <h5>Rate this item:</h5>
+                        <div class="rating-stars">
+                            {% for star in "12345" %}
+                                <span class="star" data-value="{{ star }}">&#9733;</span>
+                            {% endfor %}
+                        </div>
+                        <p class="mt-2 rating-feedback" id="rating-feedback" style="display: none;"></p>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning text-center mt-3">
+                        Please <a href="{% url 'login' %}" class="alert-link">log in</a> to rate this item.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommended Items -->
+        <div class="mt-5">
+            <h3>Recommended for You</h3>
+            <div class="row">
+                {% for recommended_item in recommended_items %}
+                <div class="col-md-3">
+                    <div class="card shadow-sm border-0">
+                        <img src="{{ recommended_item.image.url }}" class="card-img-top" alt="{{ recommended_item.name }}">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">{{ recommended_item.name }}</h5>
+                            <p class="card-text text-muted">${{ recommended_item.price }}</p>
+                            <a href="{% url 'item_detail' recommended_item.slug %}" class="btn btn-outline-primary">View Details</a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p>No recommendations available.</p>
+                {% endfor %}
             </div>
         </div>
     </div>

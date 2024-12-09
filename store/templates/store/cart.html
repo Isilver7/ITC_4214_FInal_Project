@@ -34,14 +34,20 @@
                         <a href="{% url 'cart_remove' item.item.id %}" class="btn btn-danger btn-sm">Remove</a>
                     </td>
                 </tr>
-                {% endfor %}
+                {% empty %}
                 <tr>
-                    <td colspan="3"><strong>Total:</strong></td>
-                    <td colspan="2"><strong>${{ cart.get_total_price }}</strong></td>
+                    <td colspan="5" class="text-center">Your cart is empty.</td>
                 </tr>
+                {% endfor %}
             </tbody>
         </table>
-        <a href="{% url 'index' %}" class="btn btn-primary">Continue Shopping</a>
+        <div class="d-flex justify-content-between">
+            <a href="{% url 'index' %}" class="btn btn-primary">Continue Shopping</a>
+            <form method="POST" action="{% url 'checkout' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-success" {% if cart|length == 0 %}disabled{% endif %}>Checkout</button>
+            </form>
+        </div>
     </div>
     <!-- Footer -->
     {% include 'store/footer.html' %}

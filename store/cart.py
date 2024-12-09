@@ -23,6 +23,7 @@ class Cart:
             self.save()
 
     def save(self):
+        self.session['cart'] = self.cart
         self.session.modified = True
 
     def __iter__(self):

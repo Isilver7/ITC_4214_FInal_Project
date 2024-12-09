@@ -29,7 +29,20 @@ def category_items(request, slug):
 
 def item_detail(request, slug):
     item = get_object_or_404(Item, slug=slug)
-    return render(request, 'store/item_detail.html', {'item': item})
+    
+    # Increment item views for popularity tracking
+    item.views += 1
+    item.save()
+
+    # Fetch similar items in the same category
+    recommended_items = Item.objects.filter(category=item.category).exclude(id=item.id)[:4]
+    
+    context = {
+        'item': item,
+        'recommended_items': recommended_items,
+    }
+    return render(request, 'store/item_detail.html', context)
+
 
 def all_categories(request):
     categories = Category.objects.all()
@@ -77,6 +90,7 @@ def register_view(request):
         form = UserCreationForm()
     return render(request, 'store/register.html', {'form': form})
 
+
 @login_required
 def profile_view(request):
     profile, created = Profile.objects.get_or_create(user=request.user)
@@ -108,6 +122,19 @@ def rate_item(request, item_id):
         rating.save()
         return JsonResponse({'success': True, 'stars': stars})
     return JsonResponse({'success': False})
+
+@login_required
+def checkout(request):
+    cart = Cart(request)
+    if len(cart) == 0:  # Check if the cart is empty
+        messages.error(request, "Your cart is empty. Add items to proceed to checkout.")
+        return redirect('cart_detail')
+    
+    # Simulate checkout success
+    cart.clear()  # Clear the cart after checkout
+    messages.success(request, "Checkout successful! Thank you for your purchase.")
+    return redirect('index')
+
 
 def about_us(request):
     return render(request, 'store/about_us.html')
