@@ -1,57 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {% load static %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ item.name }} - StylePulse</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    {% load static %}
     <link rel="stylesheet" href="{% static 'store/styles.css' %}">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <style>
-        .rating-stars {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 5px;
-            margin-top: 15px;
-        }
-        .star {
-            font-size: 2rem;
-            cursor: pointer;
-            color: #ccc; /* Default star color */
-        }
-        .star:hover,
-        .star.selected {
-            color: #ffc107; /* Highlight color (gold) */
-        }
-        .product-details {
-            background: #f9f9f9;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        .rating-feedback {
-            text-align: center;
-            font-weight: bold;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'store/item_detail.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"defer></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"defer></script>
+    <script src="{% static 'store/item_detail.js' %}"defer></script>
 </head>
 <body>
-    <!-- Navbar -->
     {% include 'store/navbar.html' %}
 
     <div class="container mt-5">
         <div class="row">
-            <!-- Product Image -->
             <div class="col-md-6">
                 <div class="text-center">
                     <img src="{{ item.image.url }}" class="img-fluid rounded" alt="{{ item.name }}">
                 </div>
             </div>
 
-            <!-- Product Details -->
             <div class="col-md-6">
                 <div class="product-details">
                     <h1 class="text-primary">{{ item.name }}</h1>
@@ -59,7 +30,6 @@
                     <h3 class="text-success">${{ item.price }}</h3>
                     <a href="{% url 'cart_add' item.id %}" class="btn btn-primary w-100 mb-4">Add to Cart</a>
 
-                    <!-- Rating System -->
                     {% if user.is_authenticated %}
                     <div class="text-center">
                         <h5>Rate this item:</h5>
@@ -79,7 +49,6 @@
             </div>
         </div>
 
-        <!-- Recommended Items -->
         <div class="mt-5">
             <h3>Recommended for You</h3>
             <div class="row">
@@ -100,46 +69,5 @@
             </div>
         </div>
     </div>
-
-    <script>
-        $(document).ready(function() {
-            $('.star').on('mouseenter', function() {
-                var value = $(this).data('value');
-                $('.star').each(function() {
-                    if ($(this).data('value') <= value) {
-                        $(this).addClass('selected');
-                    } else {
-                        $(this).removeClass('selected');
-                    }
-                });
-            });
-
-            $('.rating-stars').on('mouseleave', function() {
-                $('.star').removeClass('selected');
-            });
-
-            $('.star').on('click', function() {
-                var stars = $(this).data('value');
-                $.ajax({
-                    url: "{% url 'rate_item' item.id %}",
-                    method: "POST",
-                    data: {
-                        'stars': stars,
-                        'csrfmiddlewaretoken': '{{ csrf_token }}'
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            $('#rating-feedback').text('You rated this item ' + response.stars + ' stars.').css('color', 'green').show();
-                        } else {
-                            $('#rating-feedback').text('There was an error. Please try again.').css('color', 'red').show();
-                        }
-                    },
-                    error: function() {
-                        $('#rating-feedback').text('There was an error. Please try again.').css('color', 'red').show();
-                    }
-                });
-            });
-        });
-    </script>
 </body>
 </html>

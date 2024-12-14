@@ -1,0 +1,30 @@
+.rating-stars {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    margin-top: 15px;
+}
+
+.star {
+    font-size: 2rem;
+    cursor: pointer;
+    color: #ccc; /* Default star color */
+}
+
+.star:hover,
+.star.selected {
+    color: #ffc107; /* Highlight color (gold) */
+}
+
+.product-details {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.rating-feedback {
+    text-align: center;
+    font-weight: bold;
+}
