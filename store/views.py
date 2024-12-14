@@ -5,13 +5,16 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from .models import Category, Item, Profile, Rating
 from .cart import Cart
+from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.db.models import Q
-from .forms import ProfileForm
+from .forms import ProfileForm, ItemUpdateForm
+import json
+from django.views.decorators.csrf import csrf_exempt
 
 
 def index(request):
-    items = Item.objects.all()  # Get all items
+    items = Item.objects.all()  
     context = {
         'items': items
     }
@@ -30,11 +33,6 @@ def category_items(request, slug):
 def item_detail(request, slug):
     item = get_object_or_404(Item, slug=slug)
     
-    # Increment item views for popularity tracking
-    item.views += 1
-    item.save()
-
-    # Fetch similar items in the same category
     recommended_items = Item.objects.filter(category=item.category).exclude(id=item.id)[:4]
     
     context = {
@@ -48,10 +46,10 @@ def all_categories(request):
     categories = Category.objects.all()
     return render(request, 'store/all_categories.html', {'categories': categories,})
 
-# Cart Views
+
 def cart_detail(request):
-    cart = Cart(request)  # Initialize the cart
-    return render(request, 'store/cart.html', {'cart': cart})  # Pass the cart to the template
+    cart = Cart(request) 
+    return render(request, 'store/cart.html', {'cart': cart})  
 
 def cart_add(request, item_id):
     cart = Cart(request)
@@ -71,7 +69,7 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect('index')  # Ensure 'index' is a valid URL name
+            return redirect('index')  
         else:
             messages.error(request, "Invalid username or password.")
     else:
@@ -113,28 +111,63 @@ def profile_view(request):
 
 
 @login_required
+@csrf_exempt
 def rate_item(request, item_id):
     if request.method == 'POST':
-        stars = int(request.POST.get('stars', 0))
-        item = Item.objects.get(id=item_id)
-        rating, created = Rating.objects.get_or_create(item=item, user=request.user)
-        rating.stars = stars
-        rating.save()
-        return JsonResponse({'success': True, 'stars': stars})
-    return JsonResponse({'success': False})
+        try:
+            data = json.loads(request.body)
+            stars = int(data.get('stars', 0))
+            if stars < 1 or stars > 5:
+                return JsonResponse({'success': False, 'error': 'Invalid rating value.'}, status=400)
+            
+            item = Item.objects.get(id=item_id)
+            rating, created = Rating.objects.get_or_create(item=item, user=request.user)
+            rating.stars = stars
+            rating.save()
+
+            return JsonResponse({'success': True, 'stars': rating.stars})
+        except Item.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Item not found.'}, status=404)
+        except ValueError:
+            return JsonResponse({'success': False, 'error': 'Invalid data format.'}, status=400)
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+    return JsonResponse({'success': False, 'error': 'Invalid request method.'}, status=405)
+
 
 @login_required
 def checkout(request):
     cart = Cart(request)
-    if len(cart) == 0:  # Check if the cart is empty
+    if len(cart) == 0:  
         messages.error(request, "Your cart is empty. Add items to proceed to checkout.")
         return redirect('cart_detail')
     
-    # Simulate checkout success
-    cart.clear()  # Clear the cart after checkout
+   
+    cart.clear()  
     messages.success(request, "Checkout successful! Thank you for your purchase.")
     return redirect('index')
 
 
 def about_us(request):
     return render(request, 'store/about_us.html')
+
+def is_staff(user):
+    return user.is_staff or user.is_superuser
+
+@user_passes_test(is_staff)
+def manage_items(request):
+    items = Item.objects.all()
+    
+    if request.method == 'POST':
+        item_id = request.POST.get('item_id')
+        item = get_object_or_404(Item, id=item_id)
+        item.price = request.POST.get('price')
+        item.stock = request.POST.get('stock')
+        item.save()
+        messages.success(request, f"{item.name} updated successfully!")
+        return redirect('manage_items')
+    
+    return render(request, 'store/manage_items.html', {
+        'items': items,
+    })

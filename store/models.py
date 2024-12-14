@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-# Category Model
 class Category(models.Model):
     name = models.CharField(max_length=100)
     slug = models.SlugField(unique=True)
@@ -10,7 +9,6 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
-# Item Model
 class Item(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
@@ -26,7 +24,6 @@ class Item(models.Model):
 
 
 
-# Cart Model
 class Cart(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     items = models.ManyToManyField(Item, through='CartItem')
@@ -35,7 +32,6 @@ class Cart(models.Model):
     def __str__(self):
         return f"Cart of {self.user.username}"
 
-# Cart Item Model (Intermediate for Cart and Item)
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
@@ -48,7 +44,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     bio = models.TextField(blank=True, null=True)
     location = models.CharField(max_length=100, blank=True, null=True)
-    # Add more fields as needed
+    
 
     def __str__(self):
         return self.user.username
@@ -56,7 +52,7 @@ class Profile(models.Model):
 class Rating(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='ratings')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    stars = models.IntegerField(default=0)  # Rating from 1 to 5
+    stars = models.IntegerField(default=0)  
 
     class Meta:
-        unique_together = ('item', 'user')  # Ensure a user can rate an item only once
+        unique_together = ('item', 'user')  
