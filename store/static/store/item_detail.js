@@ -4,7 +4,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let selectedRating = 0;
 
-    // Highlight stars on hover without removing persistent selection
     stars.forEach((star) => {
         star.addEventListener("mouseenter", () => {
             const value = parseInt(star.getAttribute("data-value"));
@@ -19,7 +18,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Clear hover highlight but keep persistent selection
     document.querySelector(".rating-stars").addEventListener("mouseleave", () => {
         stars.forEach((s) => {
             s.classList.remove("hovered");
@@ -29,13 +27,11 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Persist the star color on click
     stars.forEach((star) => {
         star.addEventListener("click", () => {
             const value = parseInt(star.getAttribute("data-value"));
             selectedRating = value;
 
-            // Send the rating to the server
             fetch(`${window.location.origin}/rate/${itemId}/`, {
                 method: "POST",
                 headers: {
@@ -46,13 +42,12 @@ document.addEventListener("DOMContentLoaded", () => {
             })
                 .then((response) => response.json())
                 .then((data) => {
-                    console.log(data); // Debug server response
+                    console.log(data); 
                     if (data.success) {
                         feedback.textContent = `You rated this item ${data.stars} stars.`;
                         feedback.style.color = "green";
                         feedback.style.display = "block";
 
-                        // Apply persistent selection state
                         stars.forEach((s) => {
                             const starValue = parseInt(s.getAttribute("data-value"));
                             if (starValue <= selectedRating) {

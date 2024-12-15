@@ -17,7 +17,7 @@ class Item(models.Model):
     image = models.ImageField(upload_to='items/', blank=True, null=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='items')
     slug = models.SlugField(unique=True)
-    views = models.PositiveIntegerField(default=0)  # Track item views
+    views = models.PositiveIntegerField(default=0)  
 
     def __str__(self):
         return self.name

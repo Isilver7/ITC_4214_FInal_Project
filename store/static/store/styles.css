@@ -1,10 +1,10 @@
-/* Navbar */
+
 .navbar-brand {
     font-size: 1.5rem;
     font-weight: bold;
 }
 
-/* Card Styling */
+
 .card:hover {
     transform: scale(1.05);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);

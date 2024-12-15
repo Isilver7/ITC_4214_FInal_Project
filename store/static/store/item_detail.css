@@ -1,13 +1,13 @@
 .star {
     font-size: 2rem;
     cursor: pointer;
-    color: #ccc; /* Default star color */
+    color: #ccc; 
 }
 
 .star.hovered {
-    color: #ffc107; /* Hover highlight */
+    color: #ffc107; 
 }
 
 .star.selected {
-    color: #ff9800; /* Persistent selection */
+    color: #ff9800; 
 }

@@ -62,7 +62,7 @@ DATABASES = {
     }
 }
 
-# Switch to Heroku's Postgres if DATABASE_URL is available
+
 DATABASE_URL = os.getenv('DATABASE_URL')
 if DATABASE_URL:
     DATABASES['default'] = dj_database_url.config(default=DATABASE_URL, conn_max_age=600, ssl_require=True)
